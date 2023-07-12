@@ -1,0 +1,8 @@
+C:\Users\TAF\source\repos\TodoConsole\bin\Debug\TodoConsole.exe.config
+C:\Users\TAF\source\repos\TodoConsole\bin\Debug\TodoConsole.exe
+C:\Users\TAF\source\repos\TodoConsole\bin\Debug\TodoConsole.pdb
+C:\Users\TAF\source\repos\TodoConsole\obj\Debug\TodoConsole.csproj.AssemblyReference.cache
+C:\Users\TAF\source\repos\TodoConsole\obj\Debug\TodoConsole.csproj.SuggestedBindingRedirects.cache
+C:\Users\TAF\source\repos\TodoConsole\obj\Debug\TodoConsole.csproj.CoreCompileInputs.cache
+C:\Users\TAF\source\repos\TodoConsole\obj\Debug\TodoConsole.exe
+C:\Users\TAF\source\repos\TodoConsole\obj\Debug\TodoConsole.pdb
