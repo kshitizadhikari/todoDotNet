@@ -6,3 +6,11 @@ C:\Users\TAF\source\repos\TodoConsole\obj\Debug\TodoConsole.csproj.SuggestedBind
 C:\Users\TAF\source\repos\TodoConsole\obj\Debug\TodoConsole.csproj.CoreCompileInputs.cache
 C:\Users\TAF\source\repos\TodoConsole\obj\Debug\TodoConsole.exe
 C:\Users\TAF\source\repos\TodoConsole\obj\Debug\TodoConsole.pdb
+D:\DotNet\TodoConsole\bin\Debug\TodoConsole.exe.config
+D:\DotNet\TodoConsole\bin\Debug\TodoConsole.exe
+D:\DotNet\TodoConsole\bin\Debug\TodoConsole.pdb
+D:\DotNet\TodoConsole\obj\Debug\TodoConsole.csproj.AssemblyReference.cache
+D:\DotNet\TodoConsole\obj\Debug\TodoConsole.csproj.SuggestedBindingRedirects.cache
+D:\DotNet\TodoConsole\obj\Debug\TodoConsole.csproj.CoreCompileInputs.cache
+D:\DotNet\TodoConsole\obj\Debug\TodoConsole.exe
+D:\DotNet\TodoConsole\obj\Debug\TodoConsole.pdb
