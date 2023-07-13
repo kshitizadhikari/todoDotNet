@@ -67,24 +67,35 @@ namespace TodoConsole
 
             void editTodo(List<string> list)
             {
+                editAgain:
                 Console.Write("\nEnter the number of todo that you want to edit: ");
                 char numChar = Console.ReadKey().KeyChar;
-                int num = int.Parse(numChar.ToString()) - 1;
-                for(int i=0; i<list.Count; i++)
+                int num;
+                if (int.TryParse(numChar.ToString(), out num))
                 {
-                    if(i == num)
+                    num = num - 1;
+                    for (int i = 0; i < list.Count; i++)
                     {
-                        Console.WriteLine("\nThe todo that you are going to edit is: ");
-                        Console.WriteLine(num+1 + ": "+ list[num]);
+                        if (i == num)
+                        {
+                            Console.WriteLine("\nThe todo that you are going to edit is: ");
+                            Console.WriteLine(num + 1 + ": " + list[num]);
+                        }
                     }
+
+
+                    Console.WriteLine("\nEnter new todo: ");
+                    string newTodo = Console.ReadLine();
+                    list[num] = newTodo;
+
+                    Console.WriteLine("\nUpdated successfully.");
+                }
+                else if (num != 1 || num != 2 || num != 3 || num != 4)
+                {
+                    goto editAgain;
                 }
 
 
-                Console.WriteLine("\nEnter new todo: ");
-                string newTodo = Console.ReadLine();
-                list[num] = newTodo;
-
-                Console.WriteLine("\nUpdated successfully.");
 
             }
 
