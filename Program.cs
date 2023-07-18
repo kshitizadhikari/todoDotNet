@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Data.SqlClient;
 
 namespace TodoConsole
 {
@@ -10,132 +11,158 @@ namespace TodoConsole
     {
         static void Main(string[] args)
         {
+            string connectionString = "Data Source=(localdb)\\MSSQLLocalDB;Server=DESKTOP-72AIJKL;Initial Catalog=TodoConsole;Integrated Security=True";
+            SqlConnection connection = new SqlConnection(connectionString);
 
-            //get todo from user
-            //add todo 
-            //give options to add new or edit or just view
-            bool isRunning = true;
-            string todo;
-            List<string> todoList = new List<string>();
-
-            while (isRunning)
+            try
             {
-                Console.WriteLine("\n1 = Add Todo\n2 = Edit Todo\n3 = View Todo\n4 = Exit\n");
-                Console.Write("Enter your choice: ");
-                char cho = Console.ReadKey().KeyChar;
-               /* int choice = int.Parse(cho);*/
+                connection.Open();
+                Console.WriteLine("Connection established");
 
-                switch(cho)
+                bool isRunning = true;
+                string todo;
+                List<string> todoList = new List<string>();
+
+                while (isRunning)
                 {
-                    case '1':
-                        todo = getTodo();
-                        storeTodo(todoList, todo);
-                        break;
+                    Console.WriteLine("\n----------MENU---------\n1 = Add Todo\n2 = Edit Todo\n3 = View Todo\n4 = Exit\n");
+                    Console.Write("Enter your choice: ");
+                    char cho = Console.ReadKey().KeyChar;
+                    /* int choice = int.Parse(cho);*/
 
-                    case '2':
-                        Console.Clear();
-                        viewTodo(todoList);
-                        editTodo(todoList);
+                    switch (cho)
+                    {
+                        case '1':
+                            todo = getTodo(connection);
+                            storeTodo(todoList, todo);
+                            break;
 
-                        break;
+                        case '2':
+                            Console.Clear();
+                            viewTodo(todoList, connection);
+                            editTodo(todoList);
 
-                    case '3':
-                        Console.Clear();
-                        viewTodo(todoList);
-                        break;
+                            break;
 
-                    case '4':
-                        isRunning = exit();
-                        break;
+                        case '3':
+                            Console.Clear();
+                            viewTodo(todoList, connection);
+                            break;
 
-                    default:
-                        Console.WriteLine("\nInvalid Input. Try again.");
-                        break;
+                        case '4':
+                            isRunning = exit();
+                            break;
+
+                        default:
+                            Console.WriteLine("\nInvalid Input. Try again.");
+                            break;
+
+                    }
 
                 }
 
-            }
-
-            string getTodo()
-            {
-                string data;
-                Console.WriteLine("\nEnter a Todo: ");
-                data = Console.ReadLine();
-                return data;
-                
-            }
-
-            void editTodo(List<string> list)
-            {
-                editAgain:
-                Console.Write("\nEnter the number of todo that you want to edit: ");
-                char numChar = Console.ReadKey().KeyChar;
-                int num;
-                if (int.TryParse(numChar.ToString(), out num))
+                string getTodo(SqlConnection conn)
                 {
-                    num = num - 1;
-                    for (int i = 0; i < list.Count; i++)
+                    string data;
+                    Console.WriteLine("\nEnter a Todo: ");
+                    data = Console.ReadLine();
+                    string insertQuery = "INSERT INTO Todo(todoItem) values (@todoItem)";
+                    SqlCommand command = new SqlCommand(insertQuery, conn);
+                    command.Parameters.AddWithValue("@todoItem", data);
+                    command.ExecuteNonQuery();
+                    return data;
+                }
+
+                void editTodo(List<string> list)
+                {
+                editAgain:
+                    Console.Write("\nEnter the number of todo that you want to edit: ");
+                    char numChar = Console.ReadKey().KeyChar;
+                    int num;
+                    if (int.TryParse(numChar.ToString(), out num))
                     {
-                        if (i == num)
+                        num = num - 1;
+                        for (int i = 0; i < list.Count; i++)
                         {
-                            Console.WriteLine("\nThe todo that you are going to edit is: ");
-                            Console.WriteLine(num + 1 + ": " + list[num]);
+                            if (i == num)
+                            {
+                                Console.WriteLine("\nThe todo that you are going to edit is: ");
+                                Console.WriteLine(num + 1 + ": " + list[num]);
+                            }
                         }
+
+
+                        Console.WriteLine("\nEnter new todo: ");
+                        string newTodo = Console.ReadLine();
+                        list[num] = newTodo;
+
+                        Console.WriteLine("\nUpdated successfully.");
+                    }
+                    else if (num != 1 || num != 2 || num != 3 || num != 4)
+                    {
+                        goto editAgain;
                     }
 
 
-                    Console.WriteLine("\nEnter new todo: ");
-                    string newTodo = Console.ReadLine();
-                    list[num] = newTodo;
 
-                    Console.WriteLine("\nUpdated successfully.");
                 }
-                else if (num != 1 || num != 2 || num != 3 || num != 4)
+
+                void storeTodo(List<string> list, string data)
                 {
-                    goto editAgain;
+                    list.Add(data);
                 }
 
-
-
-            }
-
-            void storeTodo(List<string> list, string data)
-            {
-                list.Add(data);
-            }
-
-            void viewTodo(List<string> list)
-            {
-                Console.WriteLine("\nYour Todo list: \n");
-                int i = 1;
-                foreach(string item in list)
+                void viewTodo(List<string> list, SqlConnection conn)
                 {
-                    Console.WriteLine(i + ": " + item);
-                    i++;
-                }
-            }
+                    string selectQuery = "SELECT * FROM Todo";
+                    SqlCommand command = new SqlCommand(selectQuery, conn);
+                    SqlDataReader reader = command.ExecuteReader();
 
-            bool exit()
-            {
+                    Console.WriteLine("\nYour Todo list: \n");
+                    Console.WriteLine("SN Todo\t\tStatus");
+                    while(reader.Read())
+                    {
+                        int id = (int)reader["id"];
+                        string todoItem = (string)reader["todoItem"];
+                        string status = (string)reader["statuss"];
+
+                        Console.WriteLine(id + ") " + todoItem + "\t" + status);
+                    }
+                }
+
+                bool exit()
+                {
                 exitOrNot:
-                Console.Write("\nDo you want to exit? (y/n): ");
-                char val = Console.ReadKey().KeyChar;
-                if (val=='y')
-                {
-                    return false;
+                    Console.Write("\nDo you want to exit? (y/n): ");
+                    char val = Console.ReadKey().KeyChar;
+                    if (val == 'y')
+                    {
+                        return false;
 
-                } else if(val=='n') {
-                    return true;
-                }else {
-                    Console.WriteLine("\nInvalid Input. Try Again.");
-                    goto exitOrNot;
+                    }
+                    else if (val == 'n')
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        Console.WriteLine("\nInvalid Input. Try Again.");
+                        goto exitOrNot;
+                    }
                 }
+
+
+                Console.ReadLine();
+            } 
+            catch (SqlException ex)
+            {
+                Console.WriteLine("Error connecting to the database. \n" +  ex.Message);
             }
 
-
-            Console.ReadLine();
-        }
-
-        
+            finally
+            {
+                connection.Close();
+            }
+    }
     }
 }
