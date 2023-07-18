@@ -21,11 +21,10 @@ namespace TodoConsole
 
                 bool isRunning = true;
                 string todo;
-                List<string> todoList = new List<string>();
 
                 while (isRunning)
                 {
-                    Console.WriteLine("\n----------MENU---------\n1 = Add Todo\n2 = Edit Todo\n3 = View Todo\n4 = Exit\n");
+                    Console.WriteLine("\n----------MENU---------\n1 = Add Todo\n2 = Edit Todo\n3 = Delete Todo\n4 = View Todo\n5 = Exit\n");
                     Console.Write("Enter your choice: ");
                     char cho = Console.ReadKey().KeyChar;
                     /* int choice = int.Parse(cho);*/
@@ -34,22 +33,27 @@ namespace TodoConsole
                     {
                         case '1':
                             todo = getTodo(connection);
-                            storeTodo(todoList, todo);
                             break;
 
                         case '2':
                             Console.Clear();
-                            viewTodo(todoList, connection);
-                            editTodo(todoList, connection);
+                            viewTodo(connection);
+                            editTodo(connection);
 
                             break;
 
                         case '3':
                             Console.Clear();
-                            viewTodo(todoList, connection);
+                            viewTodo(connection);
+                            deleteTodo(connection);
                             break;
 
                         case '4':
+                            Console.Clear();
+                            viewTodo(connection);
+                            break;
+
+                        case '5':
                             isRunning = exit();
                             break;
 
@@ -73,12 +77,12 @@ namespace TodoConsole
                     return data;
                 }
 
-                void editTodo(List<string> list, SqlConnection conn)
+                void editTodo(SqlConnection conn)
                 {
                 editAgain:
                     Console.Write("\nEnter the id of todo that you want to edit: ");
                     char numChar = Console.ReadKey().KeyChar;
-                    string selectQuery = "SELECT * FROM Todo where id=@value";
+                    string selectQuery = "SELECT * FROM Todo where id=@value";          
                     SqlCommand command1 = new SqlCommand(selectQuery, conn);
                     command1.Parameters.AddWithValue("@value", numChar);
                     SqlDataReader reader = command1.ExecuteReader();
@@ -131,16 +135,40 @@ namespace TodoConsole
                     //    goto editAgain;
                     //}
 
-
-
                 }
 
-                void storeTodo(List<string> list, string data)
+                void deleteTodo(SqlConnection conn)
                 {
-                    list.Add(data);
+                    Console.Write("\nEnter the id of todo that you want to delete: ");
+                    char numChar = Console.ReadKey().KeyChar;
+                    string selectQuery = "SELECT * FROM Todo where id=@value";
+                    SqlCommand command1 = new SqlCommand(selectQuery, conn);
+                    command1.Parameters.AddWithValue("@value", numChar);
+                    SqlDataReader reader = command1.ExecuteReader();
+
+                    Console.WriteLine("\nThe todo that you are goiing to delete is: \n");
+                    Console.WriteLine("SN Todo\t\tStatus");
+                    if (reader.Read())
+                    {
+                        int id = (int)reader["id"];
+                        string todoItem = (string)reader["todoItem"];
+                        string status = (string)reader["statuss"];
+                        Console.WriteLine(id + ") " + todoItem + "\t" + status);
+                    }
+                    else
+                    {
+                        Console.WriteLine("The todo with that id doesn't exist.");
+                    }
+                    reader.Close();
+
+                    string deleteQuery = "DELETE FROM Todo where id=@id";
+                    SqlCommand command2 = new SqlCommand(deleteQuery, conn);
+                    command2.Parameters.AddWithValue("@id", numChar);
+                    command2.ExecuteNonQuery();
+                    Console.WriteLine("\nSuccefully Deleted\n");
                 }
 
-                void viewTodo(List<string> list, SqlConnection conn)
+                void viewTodo(SqlConnection conn)
                 {
                     string selectQuery = "SELECT * FROM Todo";
                     SqlCommand command = new SqlCommand(selectQuery, conn);
