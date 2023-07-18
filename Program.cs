@@ -40,7 +40,7 @@ namespace TodoConsole
                         case '2':
                             Console.Clear();
                             viewTodo(todoList, connection);
-                            editTodo(todoList);
+                            editTodo(todoList, connection);
 
                             break;
 
@@ -73,35 +73,63 @@ namespace TodoConsole
                     return data;
                 }
 
-                void editTodo(List<string> list)
+                void editTodo(List<string> list, SqlConnection conn)
                 {
                 editAgain:
-                    Console.Write("\nEnter the number of todo that you want to edit: ");
+                    Console.Write("\nEnter the id of todo that you want to edit: ");
                     char numChar = Console.ReadKey().KeyChar;
-                    int num;
-                    if (int.TryParse(numChar.ToString(), out num))
+                    string selectQuery = "SELECT * FROM Todo where id=@value";
+                    SqlCommand command1 = new SqlCommand(selectQuery, conn);
+                    command1.Parameters.AddWithValue("@value", numChar);
+                    SqlDataReader reader = command1.ExecuteReader();
+
+                    Console.WriteLine("\nThe todo that you are goiing to edit is: \n");
+                    Console.WriteLine("SN Todo\t\tStatus");
+                    if (reader.Read())
                     {
-                        num = num - 1;
-                        for (int i = 0; i < list.Count; i++)
-                        {
-                            if (i == num)
-                            {
-                                Console.WriteLine("\nThe todo that you are going to edit is: ");
-                                Console.WriteLine(num + 1 + ": " + list[num]);
-                            }
-                        }
-
-
-                        Console.WriteLine("\nEnter new todo: ");
-                        string newTodo = Console.ReadLine();
-                        list[num] = newTodo;
-
-                        Console.WriteLine("\nUpdated successfully.");
-                    }
-                    else if (num != 1 || num != 2 || num != 3 || num != 4)
+                        int id = (int)reader["id"];
+                        string todoItem = (string)reader["todoItem"];
+                        string status = (string)reader["statuss"];
+                        Console.WriteLine(id + ") " + todoItem + "\t" + status);
+                    } else
                     {
-                        goto editAgain;
+                        Console.WriteLine("The todo with that id doesn't exist.");
                     }
+                    reader.Close();
+
+                    Console.WriteLine("\nEnter new status: ");
+                    string newStatus = Console.ReadLine();
+                    string updateQuery = "UPDATE Todo set statuss=@val where id=@id";
+                    SqlCommand command2 = new SqlCommand(updateQuery, conn);
+                    command2.Parameters.AddWithValue("@val", newStatus);
+                    command2.Parameters.AddWithValue("@id", numChar);
+                    command2.ExecuteNonQuery();
+                    //string updateQuery = "UPDATE Todo SET status = @newStatus";
+                    //SqlCommand command = new SqlCommand(updateQuery, conn);
+                    //command.Parameters.AddWithValue("@newStatus", "")
+                    //if (int.TryParse(numChar.ToString(), out num))
+                    //{
+                    //    num = num - 1;
+                    //    for (int i = 0; i < list.Count; i++)
+                    //    {
+                    //        if (i == num)
+                    //        {
+                    //            Console.WriteLine("\nThe todo that you are going to edit is: ");
+                    //            Console.WriteLine(num + 1 + ": " + list[num]);
+                    //        }
+                    //    }
+
+
+                    //    Console.WriteLine("\nEnter new todo: ");
+                    //    string newTodo = Console.ReadLine();
+                    //    list[num] = newTodo;
+
+                    //    Console.WriteLine("\nUpdated successfully.");
+                    //}
+                    //else if (num != 1 || num != 2 || num != 3 || num != 4)
+                    //{
+                    //    goto editAgain;
+                    //}
 
 
 
@@ -128,6 +156,7 @@ namespace TodoConsole
 
                         Console.WriteLine(id + ") " + todoItem + "\t" + status);
                     }
+                    reader.Close();
                 }
 
                 bool exit()
